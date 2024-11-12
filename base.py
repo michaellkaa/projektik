@@ -59,8 +59,9 @@ class Player:
 
 class Coin:
 
-    def __init__(self, color):
+    def __init__(self, color, position):
         self.color = color
+        self.position = position
 
 
 '''
@@ -69,13 +70,14 @@ SYSTEM FUNC
 
 # MAIN
 def main():
-    global FPS_CLOCK, SCREEN, BASIC_FONT
+    global FPS_CLOCK, SCREEN, BASIC_FONT, POINTS
     pygame.init()
     FPS_CLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
     pygame.display.set_caption('Catch Your Paycheck!')
 
+    POINTS = 0
     start_screen()
     while True:
         run_game()
@@ -108,9 +110,9 @@ def get_new_character():
     # TO DO
     return Player(PLAYER_POSITION)
 
+
 # GENEROVANIE NAHODNEJ POZICIE COINU
 def random_coin_pos():
-    # TO DO
     return [random.randint(0, SCREEN_WIDTH - COIN_SIZE), random.randint(0, SCREEN_HEIGHT - COIN_SIZE)]
 
 # ZOBRAZENIE STAVU HRACA - HP, POINTS
@@ -140,8 +142,9 @@ GAME LOOP
 '''
 
 def run_game():
+    global POINTS
     player = get_new_character()
-    coin = random_coin_pos()
+    coin_position = random_coin_pos()
     direction = ""
 
     while True:
@@ -155,16 +158,25 @@ def run_game():
                     end_game()
 
         keys = pygame.key.get_pressed()
-        if keys[K_UP]:
+        if keys[K_UP] or keys[K_w]:
             player.move('up')
-        elif keys[K_DOWN]:
+        elif keys[K_DOWN] or keys[K_s]:
             player.move('down')
-        elif keys[K_LEFT]:
+        elif keys[K_LEFT] or keys[K_a]:
             player.move('left')
-        elif keys[K_RIGHT]:
+        elif keys[K_RIGHT] or keys[K_d]:
             player.move('right')
 
-        pygame.draw.rect(SCREEN, CHARACTER_COLOR, (player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE))
+        pygame.draw.rect(SCREEN, RED, (player.pos[0]+20, player.pos[1]+5, CHARACTER_SIZE, CHARACTER_SIZE+20))
+        pygame.draw.rect(SCREEN, CHARACTER_COLOR, (player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20))
+        pygame.draw.rect(SCREEN, COIN_COLOR, (coin_position[0], coin_position[1], COIN_SIZE, COIN_SIZE))
+
+        player_rect = pygame.Rect(player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20)
+        coin_rect = pygame.Rect(coin_position[0], coin_position[1], COIN_SIZE, COIN_SIZE)
+        if player_rect.colliderect(coin_rect):
+            POINTS += 1
+            coin_position = random_coin_pos()
+
         draw_hud()
         pygame.display.update()
         FPS_CLOCK.tick(FPS)
