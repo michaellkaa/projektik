@@ -75,7 +75,7 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.collidepoint(event.pos):
-                    #print("Start game!")
+                    print("Start game!")
                     start_open()
                 if settings_button.collidepoint(event.pos):
                     settings_menu()
@@ -88,7 +88,7 @@ def main_menu():
 
 # NASTAVENIA + START GAME
 def start_open():
-    subprocess.run(["python", "main.py"]) # SPUSTI SA V DRUHOM OKNE (nedokoncene)
+    subprocess.run(["python", "game.py"]) # SPUSTI SA V DRUHOM OKNE (nedokoncene)
     
 def settings_menu():
     global theme_index, current_theme, sound_on, volume_level
