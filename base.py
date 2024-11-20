@@ -1,74 +1,98 @@
-import pygame, random, sys
+import pygame
+import random
+import sys
 from pygame.locals import *
-from sys import exit
 
 # SYSTEM
 FPS = 60
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 720
-COIN_SIZE = 25
 
 # COLORS
-NAVYBLUE = (60, 60, 100)
-WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 153, 0)
-BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 128, 0)
-PURPLE = (255, 0, 255)
+PURPLE = (183,104,162)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 PINK = (255, 51, 153)
 
-BG_COLOR = ORANGE
+BG_COLOR = PURPLE
 COIN_COLOR = YELLOW
+COIN_SIZE = 20
 CASH_COLOR = GREEN
 
 # CHARACTER
 CHARACTER_COLOR = BLACK
 CHARACTER_SIZE = 50
-PLAYER_SPEED = 12
+PLAYER_SPEED = 10
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 3
 POINTS = 0
 
-# MINI GAMES - changeable
-MINIGAME_TIME_LIMIT = 20  # 20 SEKUND
-MINIGAME_ACTIVE = False
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((CHARACTER_SIZE-10, CHARACTER_SIZE))
+        try:
+            self.image = pygame.image.load("player.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (CHARACTER_SIZE-10, CHARACTER_SIZE))
+        except pygame.error:
+            self.image = pygame.Surface((CHARACTER_SIZE-10, CHARACTER_SIZE))
+            self.image.fill(CHARACTER_COLOR)
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def move(self, keys, screen_rect):
+        if keys[K_UP] or keys[K_w]:
+            self.rect.y -= PLAYER_SPEED
+        if keys[K_DOWN] or keys[K_s]:
+            self.rect.y += PLAYER_SPEED
+        if keys[K_LEFT] or keys[K_a]:
+            self.rect.x -= PLAYER_SPEED
+        if keys[K_RIGHT] or keys[K_d]:
+            self.rect.x += PLAYER_SPEED
+        # Keep player within screen bounds
+        self.rect.clamp_ip(screen_rect)
 
 
-class Player:
-
-    def __init__(self, position: list, status: str):
-        self.pos = position
-        self.status = status
-
-    def __str__(self):
-        return str(self.pos)
-    
-    def move(self, direction):
-        if direction == 'up' and self.pos[1] > 0:
-            self.pos[1] -= PLAYER_SPEED
-        elif direction == 'down' and self.pos[1] < SCREEN_HEIGHT - CHARACTER_SIZE:
-            self.pos[1] += PLAYER_SPEED
-        elif direction == 'left' and self.pos[0] > 0:
-            self.pos[0] -= PLAYER_SPEED
-        elif direction == 'right' and self.pos[0] < SCREEN_WIDTH - CHARACTER_SIZE:
-            self.pos[0] += PLAYER_SPEED
-
-
-class Coin:
-
-    def __init__(self, color, position):
-        self.color = color
-        self.position = position
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        try:
+            self.image = pygame.image.load("coin.png").convert_alpha()
+            self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+        except pygame.error:
+            self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+            self.image.fill(COIN_COLOR)
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.special = False
 
     def toggle_special(self):
-        if random.choice([True, False, False]) == True:
-            self.color = CASH_COLOR
+        self.special = random.choice([True, False, False])  # Randomly determine if the coin is special
+        if self.special == True:
+            try:
+                self.image = pygame.image.load("special_coin.png").convert_alpha()
+                self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+            except pygame.error:
+                self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+                self.image.fill(COIN_COLOR)
         else:
-            self.color = COIN_COLOR
+            try:
+                self.image = pygame.image.load("coin.png").convert_alpha()
+                self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+            except pygame.error:
+                self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+                self.image.fill(COIN_COLOR)
+
+
+    def update_image(self):
+        if self.special:
+            self.image.fill(CASH_COLOR)  # Use the "cash" color for special coins
+        else:
+            self.image.fill(COIN_COLOR)  # Default coin color
 
 
 '''
@@ -89,12 +113,14 @@ def main():
         run_game()
         game_over_screen()
 
-# UKONCENIE HRY
+
+# END GAME
 def end_game():
     pygame.quit()
     sys.exit()
 
-# GAME OVER SCREEN - hra sa zastavi, okienko s "game over" a hracovym score (+ mozno highscore), try again button, return to menu button
+
+# GAME OVER SCREEN - placeholder
 def game_over_screen():
     pass
 
@@ -103,20 +129,17 @@ def game_over_screen():
 GAME FUNC
 '''
 
-# GENEROVANIE HRACA NA ZACIATKU
+# GENERATE NEW CHARACTER
 def get_new_character():
-<<<<<<< Updated upstream
-=======
-    # TO DO
->>>>>>> Stashed changes
-    return Player(PLAYER_POSITION, "")
+    return Player(PLAYER_POSITION[0], PLAYER_POSITION[1])
 
 
-# GENEROVANIE NAHODNEJ POZICIE COINU
+# GENERATE RANDOM COIN POSITION
 def random_coin_pos():
     return [random.randint(0, SCREEN_WIDTH - COIN_SIZE), random.randint(0, SCREEN_HEIGHT - COIN_SIZE)]
 
-# ZOBRAZENIE STAVU HRACA - HP, POINTS
+
+# DRAW HUD
 def draw_hud():
     font = pygame.font.Font(None, 36)
     hp_text = font.render(f"HP: {HP}", True, BLACK)
@@ -126,68 +149,37 @@ def draw_hud():
 
 
 '''
-MINIGAMES
-'''
-
-# MINIHRA 1 - 
-def mini_game_1():
-    pass
-
-# MINIHRA 2 - 
-def mini_game_2():
-    pass
-
-
-'''
 GAME LOOP
 '''
 
 def run_game():
     global POINTS
-    player = get_new_character()
-    coin_position = random_coin_pos()
-    coin = Coin(COIN_COLOR, coin_position)
-    direction = ""
-    coin_count = 0
-    
-    while True:
-        SCREEN.fill(BG_COLOR)
-        EVENTS = pygame.event.get()
-        for event in EVENTS:  # EVENTS
-            if event.type == QUIT:
+    clock = pygame.time.Clock()
+    player = Player(PLAYER_POSITION[0], PLAYER_POSITION[1])
+    coin = Coin(*random_coin_pos())
+
+    all_sprites = pygame.sprite.Group(player, coin)
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 end_game()
-            elif event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    end_game()
-
         keys = pygame.key.get_pressed()
-        if keys[K_UP] or keys[K_w]:
-            player.move('up')
-        elif keys[K_DOWN] or keys[K_s]:
-            player.move('down')
-        elif keys[K_LEFT] or keys[K_a]:
-            player.move('left')
-        elif keys[K_RIGHT] or keys[K_d]:
-            player.move('right')
+        player.move(keys, SCREEN.get_rect())
 
-        pygame.draw.rect(SCREEN, RED, (player.pos[0]+20, player.pos[1]+5, CHARACTER_SIZE, CHARACTER_SIZE+20))
-        pygame.draw.rect(SCREEN, CHARACTER_COLOR, (player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20))
-        pygame.draw.rect(SCREEN, coin.color, (coin.position[0], coin.position[1], COIN_SIZE, COIN_SIZE))
-
-        player_rect = pygame.Rect(player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20)
-        coin_rect = pygame.Rect(coin.position[0], coin.position[1], COIN_SIZE, COIN_SIZE)
-        if player_rect.colliderect(coin_rect):
-            if coin.color == CASH_COLOR:
-                POINTS += 5
-            else:
-                POINTS += 1
-            coin_count += 1
-            coin.position = random_coin_pos()
+        if pygame.sprite.collide_rect(player, coin):
+            POINTS += 5 if coin.special else 1
+            coin.rect.topleft = random_coin_pos()
             coin.toggle_special()
-
+        SCREEN.fill(BG_COLOR)
         draw_hud()
-        pygame.display.update()
-        FPS_CLOCK.tick(FPS)
+        all_sprites.draw(SCREEN)
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    end_game()
+
 
 if __name__ == "__main__":
     main()
