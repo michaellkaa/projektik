@@ -1,4 +1,4 @@
-import pygame, subprocess, sys, os
+import pygame, sys, os
 pygame.init()
 pygame.mixer.init()
 
