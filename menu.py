@@ -55,19 +55,19 @@ def main_menu():
         # FARBA POZADIA
         screen.fill(current_theme["bg"])
 
-        draw_text("!CATCH YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 150)
+        draw_text("!CATCH YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
 
-        start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 250, 200, 50)
-        settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
-        exit_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
+        start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
+        settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
+        exit_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 550, 200, 50)
 
         pygame.draw.rect(screen, DARK_GREEN, start_button)
         pygame.draw.rect(screen, DARK_GREEN, settings_button)
         pygame.draw.rect(screen, DARK_GREEN, exit_button)
 
-        draw_text("Start", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 275)
-        draw_text("Settings", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
-        draw_text("Exit", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
+        draw_text("Start", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
+        draw_text("Settings", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
+        draw_text("Exit", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 575)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
