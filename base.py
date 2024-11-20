@@ -6,20 +6,20 @@ from sys import exit
 FPS = 60
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 720
-COIN_SIZE = 20
-COIN_SPAWNRATE = 3
+COIN_SIZE = 25
 
 # COLORS
 NAVYBLUE = (60, 60, 100)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+GREEN = (0, 153, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 ORANGE = (255, 128, 0)
 PURPLE = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
+PINK = (255, 51, 153)
 
 BG_COLOR = ORANGE
 COIN_COLOR = YELLOW
@@ -40,8 +40,9 @@ MINIGAME_ACTIVE = False
 
 class Player:
 
-    def __init__(self, position: list):
+    def __init__(self, position: list, status: str):
         self.pos = position
+        self.status = status
 
     def __str__(self):
         return str(self.pos)
@@ -63,6 +64,12 @@ class Coin:
         self.color = color
         self.position = position
 
+    def toggle_special(self):
+        if random.choice([True, False, False]) == True:
+            self.color = CASH_COLOR
+        else:
+            self.color = COIN_COLOR
+
 
 '''
 SYSTEM FUNC
@@ -78,7 +85,6 @@ def main():
     pygame.display.set_caption('Catch Your Paycheck!')
 
     POINTS = 0
-    start_screen()
     while True:
         run_game()
         game_over_screen()
@@ -87,14 +93,6 @@ def main():
 def end_game():
     pygame.quit()
     sys.exit()
-
-# V PODSTATE MENU S TLACITKOM START A SETTINGS
-def start_screen():
-    pass
-
-# NASTAVENIA - turn on/off bg_music, volume, theme (dark abyss, eternal light, hot pink), return to menu button
-def settings():
-    pass
 
 # GAME OVER SCREEN - hra sa zastavi, okienko s "game over" a hracovym score (+ mozno highscore), try again button, return to menu button
 def game_over_screen():
@@ -107,8 +105,7 @@ GAME FUNC
 
 # GENEROVANIE HRACA NA ZACIATKU
 def get_new_character():
-    # TO DO
-    return Player(PLAYER_POSITION)
+    return Player(PLAYER_POSITION, "")
 
 
 # GENEROVANIE NAHODNEJ POZICIE COINU
@@ -145,8 +142,10 @@ def run_game():
     global POINTS
     player = get_new_character()
     coin_position = random_coin_pos()
+    coin = Coin(COIN_COLOR, coin_position)
     direction = ""
-
+    coin_count = 0
+    
     while True:
         SCREEN.fill(BG_COLOR)
         EVENTS = pygame.event.get()
@@ -169,13 +168,18 @@ def run_game():
 
         pygame.draw.rect(SCREEN, RED, (player.pos[0]+20, player.pos[1]+5, CHARACTER_SIZE, CHARACTER_SIZE+20))
         pygame.draw.rect(SCREEN, CHARACTER_COLOR, (player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20))
-        pygame.draw.rect(SCREEN, COIN_COLOR, (coin_position[0], coin_position[1], COIN_SIZE, COIN_SIZE))
+        pygame.draw.rect(SCREEN, coin.color, (coin.position[0], coin.position[1], COIN_SIZE, COIN_SIZE))
 
         player_rect = pygame.Rect(player.pos[0], player.pos[1], CHARACTER_SIZE, CHARACTER_SIZE+20)
-        coin_rect = pygame.Rect(coin_position[0], coin_position[1], COIN_SIZE, COIN_SIZE)
+        coin_rect = pygame.Rect(coin.position[0], coin.position[1], COIN_SIZE, COIN_SIZE)
         if player_rect.colliderect(coin_rect):
-            POINTS += 1
-            coin_position = random_coin_pos()
+            if coin.color == CASH_COLOR:
+                POINTS += 5
+            else:
+                POINTS += 1
+            coin_count += 1
+            coin.position = random_coin_pos()
+            coin.toggle_special()
 
         draw_hud()
         pygame.display.update()
