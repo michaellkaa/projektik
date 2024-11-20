@@ -1,4 +1,4 @@
-import pygame, subprocess, sys
+import pygame, subprocess, sys, os
 pygame.init()
 pygame.mixer.init()
 
@@ -35,7 +35,7 @@ pygame.display.set_caption("MINIGAME")
 font = pygame.font.Font(None, 60)
 button_font = pygame.font.Font(None, 40)
 
-# HUDBA V MENU + ON/OFF (nedokoncene)
+# HUDBA V MENU (nedokoncene)
 #pygame.mixer.music.load("background_music.mp3")
 #pygame.mixer.music.play(-1)
 #pygame.mixer.music.set_volume(0.5)
@@ -88,7 +88,7 @@ def main_menu():
 
 # NASTAVENIA + START GAME
 def start_open():
-    subprocess.run(["python", "game.py"]) # SPUSTI SA V DRUHOM OKNE (nedokoncene)
+    os.execlp("python", "python", "game.py")
     
 def settings_menu():
     global theme_index, current_theme, sound_on, volume_level
