@@ -105,6 +105,10 @@ GAME FUNC
 
 # GENEROVANIE HRACA NA ZACIATKU
 def get_new_character():
+<<<<<<< Updated upstream
+=======
+    # TO DO
+>>>>>>> Stashed changes
     return Player(PLAYER_POSITION, "")
 
 
