@@ -29,16 +29,16 @@ current_theme = THEMES[theme_index]
 
 # OBRAZOVKA
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("MINIGAME")
+pygame.display.set_caption("MEOW")
 
-# FONT
+# FONT + NOVY FONT
 font = pygame.font.Font(None, 60)
 button_font = pygame.font.Font(None, 40)
 
-# HUDBA V MENU (nedokoncene)
-#pygame.mixer.music.load("background_music.mp3")
-#pygame.mixer.music.play(-1)
-#pygame.mixer.music.set_volume(0.5)
+# HUDBA V MENU 
+pygame.mixer.music.load("8-Bit Fantasy & Adventure Music.mp3")
+pygame.mixer.music.play(-1)
+pygame.mixer.music.set_volume(0.5)
 
 volume_level = 50  
 sound_on = True
@@ -55,7 +55,7 @@ def main_menu():
         # FARBA POZADIA
         screen.fill(current_theme["bg"])
 
-        draw_text("!CATCH YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
+        draw_text("!CAT YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
 
         start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
         settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
@@ -115,6 +115,7 @@ def settings_menu():
         draw_text("Theme", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 275)
         draw_text("Sound: ON" if sound_on else "Sound: OFF", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
 
+
         pygame.draw.rect(screen, WHITE, volume_slider_rect)
         pygame.draw.rect(screen, YELLOW, volume_slider)
         draw_text(f"Volume: {volume_level}%", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
@@ -137,12 +138,11 @@ def settings_menu():
                         pygame.mixer.music.set_volume(volume_level / 100)
                         
             if event.type == pygame.MOUSEMOTION:
-                if volume_slider_rect.collidepoint(event.pos):
-                    new_x = max(min(event.pos[0], volume_slider_rect.right), volume_slider_rect.left)
-                    volume_level = (new_x - volume_slider_rect.left) // 2  
+                if pygame.mouse.get_pressed()[0] and volume_slider_rect.collidepoint(event.pos):
+                    volume_level = (event.pos[0] - volume_slider_rect.left) // 2
+                    volume_level = max(0, min(volume_level, 100))
                     volume_slider.x = volume_slider_rect.left + (volume_level * 2)
                     pygame.mixer.music.set_volume(volume_level / 100)
-
 
         pygame.display.flip()
 
