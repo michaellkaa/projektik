@@ -21,13 +21,13 @@ PINK = (255, 51, 153)
 
 BG_COLOR = PURPLE
 COIN_COLOR = YELLOW
-COIN_SIZE = 20
+COIN_SIZE = 30
 CASH_COLOR = GREEN
 
 # CHARACTER
 CHARACTER_COLOR = BLACK
-CHARACTER_SIZE = 50
-PLAYER_SPEED = 10
+CHARACTER_SIZE = 70
+PLAYER_SPEED = 12
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 3
 POINTS = 0
@@ -36,26 +36,77 @@ POINTS = 0
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((CHARACTER_SIZE-10, CHARACTER_SIZE))
-        try:
-            self.image = pygame.image.load("player.png").convert_alpha()
-            self.image = pygame.transform.scale(self.image, (CHARACTER_SIZE-10, CHARACTER_SIZE))
-        except pygame.error:
-            self.image = pygame.Surface((CHARACTER_SIZE-10, CHARACTER_SIZE))
-            self.image.fill(CHARACTER_COLOR)
+        self.left_sprites = [
+            pygame.image.load("player_still_l.png").convert_alpha(),
+            pygame.image.load("player_l1.png").convert_alpha(),
+            pygame.image.load("player_l2.png").convert_alpha(),
+            pygame.image.load("player_l3.png").convert_alpha()]
+        self.right_sprites = [
+            pygame.image.load("player_still_r.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha()]
+        self.left_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.left_sprites]
+        self.right_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.right_sprites]
+        self.up_sprites = [
+            pygame.image.load("player_still_l.png").convert_alpha(),
+            pygame.image.load("player_l1.png").convert_alpha(),
+            pygame.image.load("player_l2.png").convert_alpha(),
+            pygame.image.load("player_l3.png").convert_alpha()]
+        self.down_sprites = [
+            pygame.image.load("player_still_r.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha(),
+            pygame.image.load("player_r1.png").convert_alpha()]
+        self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.up_sprites]
+        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.down_sprites]
+
+        self.image = self.right_sprites[0]
         self.rect = self.image.get_rect(topleft=(x, y))
+        self.frame_index = 0
+        self.animation_timer = 0
+        self.animation_speed = 100
+        self.direction = "right"
 
     def move(self, keys, screen_rect):
-        if keys[K_UP] or keys[K_w]:
-            self.rect.y -= PLAYER_SPEED
-        if keys[K_DOWN] or keys[K_s]:
-            self.rect.y += PLAYER_SPEED
+        moved = False
         if keys[K_LEFT] or keys[K_a]:
             self.rect.x -= PLAYER_SPEED
-        if keys[K_RIGHT] or keys[K_d]:
+            self.direction = "left"
+            moved = True
+        elif keys[K_RIGHT] or keys[K_d]:
             self.rect.x += PLAYER_SPEED
-        # Keep player within screen bounds
+            self.direction = "right"
+            moved = True
+        elif keys[K_UP] or keys[K_w]:
+            self.rect.y -= PLAYER_SPEED
+            self.direction = "up"
+            moved = True
+        elif keys[K_DOWN] or keys[K_s]:
+            self.rect.y += PLAYER_SPEED
+            self.direction = "down"
+            moved = True
+
         self.rect.clamp_ip(screen_rect)
+        if moved:
+            self.update_animation()
+
+    def update_animation(self):
+        now = pygame.time.get_ticks()
+        if now - self.animation_timer > self.animation_speed:
+            self.animation_timer = now
+            self.frame_index = (self.frame_index + 1) % 4
+
+            if self.direction == "left":
+                self.image = self.left_sprites[self.frame_index]
+            elif self.direction == "right":
+                self.image = self.right_sprites[self.frame_index]
+            if self.direction == "up":
+                self.image = self.left_sprites[self.frame_index]
+            elif self.direction == "down":
+                self.image = self.right_sprites[self.frame_index]
+
+
 
 
 class Coin(pygame.sprite.Sprite):
@@ -106,7 +157,7 @@ def main():
     FPS_CLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('Catch Your Paycheck!')
+    pygame.display.set_caption('CAT Your Paycheck!')
 
     POINTS = 0
     while True:
@@ -169,10 +220,15 @@ def run_game():
         player.move(keys, SCREEN.get_rect())
 
         if pygame.sprite.collide_rect(player, coin):
+            pygame.mixer.music.load("coin_sound.mp3")
+            pygame.mixer.music.play(1)
+            pygame.mixer.music.set_volume(0.5)
             POINTS += 5 if coin.special else 1
             coin.rect.topleft = random_coin_pos()
             coin.toggle_special()
-        SCREEN.fill(BG_COLOR)
+        background = pygame.image.load("background.png")
+        background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        SCREEN.blit(background, (0, 0))
         draw_hud()
         all_sprites.draw(SCREEN)
         pygame.display.flip()
