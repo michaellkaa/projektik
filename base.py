@@ -26,7 +26,7 @@ CASH_COLOR = GREEN
 
 # CHARACTER
 CHARACTER_COLOR = BLACK
-CHARACTER_SIZE = 70
+CHARACTER_SIZE = 100
 PLAYER_SPEED = 12
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 3
@@ -46,8 +46,8 @@ class Player(pygame.sprite.Sprite):
             pygame.image.load("player_r1.png").convert_alpha(),
             pygame.image.load("player_r1.png").convert_alpha(),
             pygame.image.load("player_r1.png").convert_alpha()]
-        self.left_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.left_sprites]
-        self.right_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.right_sprites]
+        self.left_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.left_sprites]
+        self.right_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.right_sprites]
         self.up_sprites = [
             pygame.image.load("player_still_l.png").convert_alpha(),
             pygame.image.load("player_l1.png").convert_alpha(),
@@ -58,8 +58,8 @@ class Player(pygame.sprite.Sprite):
             pygame.image.load("player_r1.png").convert_alpha(),
             pygame.image.load("player_r1.png").convert_alpha(),
             pygame.image.load("player_r1.png").convert_alpha()]
-        self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.up_sprites]
-        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-10, CHARACTER_SIZE)) for img in self.down_sprites]
+        self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.up_sprites]
+        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.down_sprites]
 
         self.image = self.right_sprites[0]
         self.rect = self.image.get_rect(topleft=(x, y))
