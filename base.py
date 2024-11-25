@@ -44,8 +44,8 @@ class Player(pygame.sprite.Sprite):
         self.right_sprites = [
             pygame.image.load("player_still_r.png").convert_alpha(),
             pygame.image.load("player_r1.png").convert_alpha(),
-            pygame.image.load("player_r1.png").convert_alpha(),
-            pygame.image.load("player_r1.png").convert_alpha()]
+            pygame.image.load("player_r2.png").convert_alpha(),
+            pygame.image.load("player_r3.png").convert_alpha()]
         self.left_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.left_sprites]
         self.right_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.right_sprites]
         self.up_sprites = [
@@ -54,12 +54,12 @@ class Player(pygame.sprite.Sprite):
             pygame.image.load("player_l2.png").convert_alpha(),
             pygame.image.load("player_l3.png").convert_alpha()]
         self.down_sprites = [
-            pygame.image.load("player_still_r.png").convert_alpha(),
-            pygame.image.load("player_r1.png").convert_alpha(),
-            pygame.image.load("player_r1.png").convert_alpha(),
-            pygame.image.load("player_r1.png").convert_alpha()]
+            pygame.image.load("player_d1.png").convert_alpha(),
+            pygame.image.load("player_d2.png").convert_alpha(),
+            pygame.image.load("player_d1.png").convert_alpha(),
+            pygame.image.load("player_d3.png").convert_alpha()]
         self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.up_sprites]
-        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.down_sprites]
+        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-(CHARACTER_SIZE//3), CHARACTER_SIZE)) for img in self.down_sprites]
 
         self.image = self.right_sprites[0]
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -102,9 +102,9 @@ class Player(pygame.sprite.Sprite):
             elif self.direction == "right":
                 self.image = self.right_sprites[self.frame_index]
             if self.direction == "up":
-                self.image = self.left_sprites[self.frame_index]
+                self.image = self.up_sprites[self.frame_index]
             elif self.direction == "down":
-                self.image = self.right_sprites[self.frame_index]
+                self.image = self.down_sprites[self.frame_index]
 
 
 
@@ -125,8 +125,8 @@ class Coin(pygame.sprite.Sprite):
         self.special = random.choice([True, False, False])  # Randomly determine if the coin is special
         if self.special == True:
             try:
-                self.image = pygame.image.load("special_coin.png").convert_alpha()
-                self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+                self.image = pygame.image.load("cash.png").convert_alpha()
+                self.image = pygame.transform.scale(self.image, (COIN_SIZE+(COIN_SIZE//2), COIN_SIZE))
             except pygame.error:
                 self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
                 self.image.fill(COIN_COLOR)
@@ -141,9 +141,9 @@ class Coin(pygame.sprite.Sprite):
 
     def update_image(self):
         if self.special:
-            self.image.fill(CASH_COLOR)  # Use the "cash" color for special coins
+            self.image.fill(CASH_COLOR)
         else:
-            self.image.fill(COIN_COLOR)  # Default coin color
+            self.image.fill(COIN_COLOR)
 
 
 '''
