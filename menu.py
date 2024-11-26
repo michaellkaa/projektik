@@ -49,6 +49,20 @@ def draw_text(text, font, color, surface, x, y):
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
 
+# CASH V MENU
+money_image = pygame.image.load("cash.png") 
+falling_money = [] 
+
+def update_and_draw_money():
+    if pygame.time.get_ticks() % 30 == 0:  
+        falling_money.append([pygame.random.randint(0, SCREEN_WIDTH - 50), -50]) 
+    for money in falling_money:
+        money[1] += 3 
+        screen.blit(money_image, money)
+    falling_money[:] = [m for m in falling_money if m[1] < SCREEN_HEIGHT]
+
+
+
 # HLAVNE MENU
 def main_menu():
     while True:
@@ -68,6 +82,8 @@ def main_menu():
         draw_text("Start", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
         draw_text("Settings", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
         draw_text("Exit", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 575)
+
+        update_and_draw_money()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
