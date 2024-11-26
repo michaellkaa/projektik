@@ -35,7 +35,7 @@ CASH_COLOR = GREEN
 # CHARACTER
 CHARACTER_COLOR = BLACK
 CHARACTER_SIZE = 100
-PLAYER_SPEED = 12
+PLAYER_SPEED = 11
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 5
 POINTS = 0
@@ -110,7 +110,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=(x, y))
         self.frame_index = 0
         self.animation_timer = 0
-        self.animation_speed = 100
+        self.animation_speed = 60
         self.direction = "right"
 
     def move(self, keys, screen_rect):
