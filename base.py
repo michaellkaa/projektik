@@ -29,7 +29,7 @@ DARK_GREEN = (26, 26, 25)
 
 BG_COLOR = PURPLE
 COIN_COLOR = YELLOW
-COIN_SIZE = 30
+COIN_SIZE = 40
 CASH_COLOR = GREEN
 
 # CHARACTER
@@ -94,17 +94,17 @@ class Player(pygame.sprite.Sprite):
         self.left_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.left_sprites]
         self.right_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.right_sprites]
         self.up_sprites = [
-            pygame.image.load("player_still_l.png").convert_alpha(),
-            pygame.image.load("player_l1.png").convert_alpha(),
-            pygame.image.load("player_l2.png").convert_alpha(),
-            pygame.image.load("player_l3.png").convert_alpha()]
+            pygame.image.load("player_u1.png").convert_alpha(),
+            pygame.image.load("player_u2.png").convert_alpha(),
+            pygame.image.load("player_u1.png").convert_alpha(),
+            pygame.image.load("player_u3.png").convert_alpha()]
         self.down_sprites = [
             pygame.image.load("player_d1.png").convert_alpha(),
             pygame.image.load("player_d2.png").convert_alpha(),
             pygame.image.load("player_d1.png").convert_alpha(),
             pygame.image.load("player_d3.png").convert_alpha()]
-        self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE, CHARACTER_SIZE)) for img in self.up_sprites]
-        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-(CHARACTER_SIZE//3), CHARACTER_SIZE)) for img in self.down_sprites]
+        self.up_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-(CHARACTER_SIZE//4), CHARACTER_SIZE)) for img in self.up_sprites]
+        self.down_sprites = [pygame.transform.scale(img, (CHARACTER_SIZE-(CHARACTER_SIZE//4), CHARACTER_SIZE)) for img in self.down_sprites]
 
         self.image = self.right_sprites[0]
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -157,9 +157,9 @@ class Coin(pygame.sprite.Sprite):
         super().__init__()
         try:
             self.image = pygame.image.load("coin.png").convert_alpha()
-            self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+            self.image = pygame.transform.scale(self.image, ((COIN_SIZE*(2/3)), (COIN_SIZE*(2/3))))
         except pygame.error:
-            self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+            self.image = pygame.Surface(((COIN_SIZE*(2/3)), (COIN_SIZE*(2/3))))
             self.image.fill(COIN_COLOR)
         self.rect = self.image.get_rect(topleft=(x, y))
         self.special = False
@@ -169,16 +169,16 @@ class Coin(pygame.sprite.Sprite):
         if self.special == True:
             try:
                 self.image = pygame.image.load("cash.png").convert_alpha()
-                self.image = pygame.transform.scale(self.image, (COIN_SIZE+(COIN_SIZE//2), COIN_SIZE))
+                self.image = pygame.transform.scale(self.image, (COIN_SIZE+((COIN_SIZE//2)-(COIN_SIZE//8)), COIN_SIZE))
             except pygame.error:
-                self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+                self.image = pygame.Surface(COIN_SIZE+((COIN_SIZE//2)-(COIN_SIZE//8)), COIN_SIZE)
                 self.image.fill(COIN_COLOR)
         else:
             try:
                 self.image = pygame.image.load("coin.png").convert_alpha()
-                self.image = pygame.transform.scale(self.image, (COIN_SIZE, COIN_SIZE))
+                self.image = pygame.transform.scale(self.image, ((COIN_SIZE*(2/3)), (COIN_SIZE*(2/3))))
             except pygame.error:
-                self.image = pygame.Surface((COIN_SIZE, COIN_SIZE))
+                self.image = pygame.Surface(((COIN_SIZE*(2/3)), (COIN_SIZE*(2/3))))
                 self.image.fill(COIN_COLOR)
 
 
@@ -215,7 +215,7 @@ def game_over_screen():
     pass
 
 # TEXT
-def draw_text(text, font, color, surface, x, y):
+def draw_text_menu(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
@@ -230,7 +230,7 @@ def main_menu():
         # FARBA POZADIA
         SCREEN.fill(current_theme["bg"])
 
-        draw_text("!CAT Your Paycheck!", font, YELLOW, SCREEN, SCREEN_WIDTH // 2, 195)
+        draw_text_menu("!CAT Your Paycheck!", font, YELLOW, SCREEN, SCREEN_WIDTH // 2, 195)
 
         start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
         settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
@@ -240,9 +240,9 @@ def main_menu():
         pygame.draw.rect(SCREEN, DARK_GREEN, settings_button)
         pygame.draw.rect(SCREEN, DARK_GREEN, exit_button)
 
-        draw_text("Start", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
-        draw_text("Settings", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
-        draw_text("Exit", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 575)
+        draw_text_menu("Start", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
+        draw_text_menu("Settings", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
+        draw_text_menu("Exit", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 575)
 
 
         for event in pygame.event.get():
@@ -273,7 +273,7 @@ def settings_menu():
         # FARBA POZADIA
         SCREEN.fill(current_theme["bg"])
 
-        draw_text("SETTINGS", font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 150)
+        draw_text_menu("SETTINGS", font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 150)
 
         back_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 500, 200, 50)
         theme_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 250, 200, 50)
@@ -284,14 +284,14 @@ def settings_menu():
         pygame.draw.rect(SCREEN, current_theme["button"], sound_toggle_button)
         pygame.draw.rect(SCREEN, YELLOW, volume_slider_rect)
 
-        draw_text("Back", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 525)
-        draw_text("Theme", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 275)
-        draw_text("Sound: ON" if sound_on else "Sound: OFF", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
+        draw_text_menu("Back", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 525)
+        draw_text_menu("Theme", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 275)
+        draw_text_menu("Sound: ON" if sound_on else "Sound: OFF", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
 
 
         pygame.draw.rect(SCREEN, WHITE, volume_slider_rect)
         pygame.draw.rect(SCREEN, YELLOW, volume_slider)
-        draw_text(f"Volume: {volume_level}%", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
+        draw_text_menu(f"Volume: {volume_level}%", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -345,8 +345,8 @@ def draw_hud():
 # MINIHRA 1
 def scissors_tile(square_x, square_y):
     message = "Scissors"
-    pygame.draw.rect(SCREEN, TILE_COLOR, (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
+    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
     text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
     SCREEN.blit(text_obj, text_rect)
 
@@ -354,8 +354,8 @@ def scissors_tile(square_x, square_y):
 def rock_tile(square_x, square_y):
     square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 - TILE_SIZE - 10
     message = "Rock"
-    pygame.draw.rect(SCREEN, TILE_COLOR, (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
+    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
     text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
     SCREEN.blit(text_obj, text_rect)
 
@@ -363,8 +363,8 @@ def rock_tile(square_x, square_y):
 def paper_tile(square_x, square_y):
     square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE + 10
     message = "Paper"
-    pygame.draw.rect(SCREEN, TILE_COLOR, (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
+    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
     text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
     SCREEN.blit(text_obj, text_rect)
 
@@ -389,7 +389,7 @@ def mouse_click(square_x, square_y):
         pick = check_boxes(pos[0], pos[1], square_x, square_y)
         if pick != None:
             enemy_pick = ["Rock", "Scissors", "Paper"][random.randint(1, 3) - 1]
-            SCREEN.fill((0, 0, 0))
+            SCREEN.fill(current_theme["bg"])
             if pick == enemy_pick:
                 message = "It's a tie"
                 text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
@@ -449,7 +449,8 @@ def mini_game_1():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 end_game()
-
+                
+        SCREEN.fill(current_theme["bg"])
         game(square_x, square_y) 
         mouse_click(square_x, square_y)
         if result is not None:
@@ -489,8 +490,7 @@ def run_game():
                 elif result == False:
                     HP -= 1
                     if HP == 0:
-                        end_game()
-                        print("TY CHUJ")
+                        game_over_screen()
                 else:
                     pass
                 result = None
