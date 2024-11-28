@@ -13,7 +13,7 @@ pygame.display.set_icon(icon)
 
 # SYSTEM
 FPS = 60
-SCREEN_WIDTH = 1080
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # COLORS
@@ -42,6 +42,10 @@ CHARACTER_SIZE = 100
 PLAYER_SPEED = 11
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 5
+hp = pygame.image.load("hp.png")
+hp = pygame.transform.scale(hp, (32, 32))
+nohp = pygame.image.load("nohp.png")
+nohp = pygame.transform.scale(nohp, (32, 32))
 POINTS = 0
 
 # MENU
@@ -66,11 +70,15 @@ pygame.mixer.music.set_volume(0.2)
 volume_level = 50 
 sound_on = True
 
-RESTRICTED_AREA = pygame.Rect(80, 5, 230, 120)
+RESTRICTED_AREA = pygame.Rect(105, 0, 420, 70)
+RESTRICTED_AREA_2 = pygame.Rect(322, 547, 5, 5)
+RESTRICTED_AREA_3 = pygame.Rect(762, 0, 120, 80)
+RESTRICTED_AREA_4 = pygame.Rect(510, 559, 420, 200)
+RESTRICTED_AREA_5 = pygame.Rect(1052, 0, 250, 170)
 
 # MINIGAME 1
 result = None
-TILE_SIZE = 120
+TILE_SIZE = 200
 BLANK = None
 Last_click = False
 PRINCESS_PINK = (255, 177, 207)
@@ -118,7 +126,9 @@ class Player(pygame.sprite.Sprite):
         self.direction = "right"
 
     def move(self, keys, screen_rect):
+        old_rect = self.rect.copy()
         moved = False
+
         if keys[K_LEFT] or keys[K_a]:
             self.rect.x -= PLAYER_SPEED
             self.direction = "left"
@@ -137,6 +147,8 @@ class Player(pygame.sprite.Sprite):
             moved = True
 
         self.rect.clamp_ip(screen_rect)
+        if self.rect.colliderect(RESTRICTED_AREA) or self.rect.colliderect(RESTRICTED_AREA_2) or self.rect.colliderect(RESTRICTED_AREA_3) or self.rect.colliderect(RESTRICTED_AREA_4) or self.rect.colliderect(RESTRICTED_AREA_5):
+            self.rect = old_rect
         if moved:
             self.update_animation()
 
@@ -208,13 +220,12 @@ def main():
     while True:
         run_game()
 
-
 # END GAME
 def end_game():
     pygame.quit()
     sys.exit()
 
-# GAME OVER SCREEN - placeholder
+# GAME OVER SCREEN
 def game_over_screen():
     pass
 
@@ -372,55 +383,65 @@ def get_new_character():
 
 # GENERATE RANDOM COIN POSITION
 def random_coin_pos():
-    return [random.randint(200, SCREEN_WIDTH - COIN_SIZE), random.randint(200, SCREEN_HEIGHT - COIN_SIZE)]
+    while True:
+        x = random.randint(10, SCREEN_WIDTH - COIN_SIZE)
+        y = random.randint(10, SCREEN_HEIGHT - COIN_SIZE)
+        coin_rect = pygame.Rect(x, y, COIN_SIZE, COIN_SIZE)
+        if not (coin_rect.colliderect(RESTRICTED_AREA) or coin_rect.colliderect(RESTRICTED_AREA_2) or coin_rect.colliderect(RESTRICTED_AREA_3) or coin_rect.colliderect(RESTRICTED_AREA_4) or coin_rect.colliderect(RESTRICTED_AREA_5)):
+            return [x, y]
+
 
 # DRAW HUD
 def draw_hud():
-    font = pygame.font.Font(None, 36)
-    hp_text = font.render(f"HP: {HP}", True, BLACK)
-    points_text = font.render(f"Score: {POINTS}", True, WHITE)
-    SCREEN.blit(hp_text, (10, 10))
-    SCREEN.blit(points_text, (10, 50))
+    hp_x = 600
+    hp_y = 20
+    for i in range(0, HP):
+        SCREEN.blit(hp, (hp_x, hp_y))
+        hp_x += 45
+    for i in range(0, 5-HP):
+        SCREEN.blit(nohp, (hp_x, hp_y))
+        hp_x += 45
+    font = pygame.font.Font(None, 27)
+    points_text = font.render(f"{POINTS} $", True, BLACK)
+    pygame.draw.rect(SCREEN, GRAY, (923, 12, 46, 46))
+    pygame.draw.rect(SCREEN, WHITE, (925, 15, 40, 40))
+    SCREEN.blit(points_text, (927, 25))
 
 # MINIHRA 1
-def scissors_tile(square_x, square_y):
-    message = "Scissors"
-    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
-    text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
-    SCREEN.blit(text_obj, text_rect)
+cash_img = pygame.image.load("cash.png")
+FONT = pygame.font.Font(None, 55)
 
+def scissors_tile(square_x, square_y):
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, 1.5*TILE_SIZE, TILE_SIZE))
+    scaled_image = pygame.transform.scale(cash_img, (1.5*TILE_SIZE, TILE_SIZE))
+    SCREEN.blit(scaled_image, (square_x, square_y))
 
 def rock_tile(square_x, square_y):
-    square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 - TILE_SIZE - 10
-    message = "Rock"
-    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
-    text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
-    SCREEN.blit(text_obj, text_rect)
-
+    square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 - TILE_SIZE - 150
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, 1.5*TILE_SIZE, TILE_SIZE))
+    scaled_image = pygame.transform.scale(cash_img, (1.5*TILE_SIZE, TILE_SIZE))
+    SCREEN.blit(scaled_image, (square_x, square_y))
 
 def paper_tile(square_x, square_y):
-    square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE + 10
-    message = "Paper"
-    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, TILE_SIZE, TILE_SIZE))
-    text_obj = BASIC_FONT.render(message, True, current_theme["text"])
-    text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
-    SCREEN.blit(text_obj, text_rect)
-
+    square_x = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE + 150
+    pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, 1.5*TILE_SIZE, TILE_SIZE))
+    scaled_image = pygame.transform.scale(cash_img, (1.5*TILE_SIZE, TILE_SIZE))
+    SCREEN.blit(scaled_image, (square_x, square_y))
 
 def game(square_x, square_y):
+    message = "> ONE OF THEM IS FAKE <"
+    text_obj = FONT.render(message, True, WHITE)
+    text_rect = text_obj.get_rect(center=(SCREEN_HEIGHT//2, SCREEN_HEIGHT/2-(SCREEN_HEIGHT//3)))
+    SCREEN.blit(text_obj, text_rect)
     scissors_tile(square_x, square_y)
     rock_tile(square_x, square_y)
     paper_tile(square_x, square_y)
-
 
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect()
     text_rect.topleft = (x, y)
     surface.blit(text_obj, text_rect)
-
 
 def mouse_click(square_x, square_y):
     global Last_click, result
@@ -431,17 +452,17 @@ def mouse_click(square_x, square_y):
             enemy_pick = ["Rock", "Scissors", "Paper"][random.randint(1, 3) - 1]
             SCREEN.fill(current_theme["bg"])
             if pick == enemy_pick:
-                message = "It's a tie"
-                text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+                message = "YOU FOUND THE REAL CASH."
+                text_obj = FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
                 pygame.time.delay(1000)
-                result = "Tie"
+                result = True
                 return result
             elif (pick == "Rock" and enemy_pick == "Paper") or (pick == "Paper" and enemy_pick == "Scissors") or (pick == "Scissors" and enemy_pick ==  "Rock"):
-                message = "You won"
-                text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+                message = "YOU FOUND THE REAL CASH."
+                text_obj = FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
@@ -449,8 +470,8 @@ def mouse_click(square_x, square_y):
                 result = True
                 return result
             elif (pick == "Rock" and enemy_pick == "Scissors") or (pick == "Paper" and enemy_pick == "Rock") or (pick == "Scissors" and enemy_pick ==  "Paper"):
-                message = "You lose"
-                text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
+                message = "OH NO. YOU FOUND FAKE MONEY!"
+                text_obj = FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
@@ -477,7 +498,6 @@ def check_boxes(mouse_x, mouse_y, square_x, square_y):
     if paper_left <= mouse_x <= paper_right and tile_top <= mouse_y <= tile_bottom:
         return "Paper"
     return None
-
 
 def mini_game_1():
     global SCREEN, BASIC_FONT, result, clock
@@ -507,7 +527,7 @@ GAME LOOP
 '''
 
 def run_game():
-    global POINTS, HP, result
+    global POINTS, HP, result, hp, nohp
     clock = pygame.time.Clock()
     player = Player(PLAYER_POSITION[0], PLAYER_POSITION[1])
     coin = Coin(*random_coin_pos())
@@ -526,6 +546,7 @@ def run_game():
             pygame.mixer.music.load("coin_sound.mp3")
             pygame.mixer.music.play(1)
             pygame.mixer.music.set_volume(0.5)
+
             if coin.special:
                 mini_game_1()
                 if result == True:
