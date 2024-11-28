@@ -5,7 +5,11 @@ import sys
 from pygame.locals import *
 
 pygame.init()
-pygame.font.init() 
+pygame.font.init()
+
+# ICONA MACICKY + SCREEN
+icon = pygame.image.load("icon1.png")
+pygame.display.set_icon(icon)
 
 # SYSTEM
 FPS = 60
@@ -77,6 +81,8 @@ TEXT_COLOR = WHITE
 BASIC_FONT_SIZE = 20
 MESSAGE_COLOR = WHITE
 
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("MEOW")
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -221,16 +227,29 @@ def draw_text_menu(text, font, color, surface, x, y):
     surface.blit(text_obj, text_rect)
 
 
+money_image = pygame.image.load("cash.png")
+money_image = pygame.transform.scale(money_image, (50, 50))
+
+falling_money = []
+
+def spawn_money():
+    x_pos = random.randint(0, SCREEN_WIDTH - 50)
+    y_pos = -50
+    speed = random.uniform(0.5, 0.8)
+    falling_money.append({"x": x_pos, "y": y_pos, "speed": speed})
+def update_money():
+    for money in falling_money:
+        money["y"] += money["speed"]
+    falling_money[:] = [m for m in falling_money if m["y"] < SCREEN_HEIGHT]
+
 # HLAVNE MENU
 def main_menu():
     while True:
         global SCREEN
-        SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption('CAT Your Paycheck!')
         # FARBA POZADIA
         SCREEN.fill(current_theme["bg"])
 
-        draw_text_menu("!CAT Your Paycheck!", font, YELLOW, SCREEN, SCREEN_WIDTH // 2, 195)
+        draw_text_menu(">> CAT YOUR PAYCHECK <<", font, YELLOW, SCREEN, SCREEN_WIDTH // 2, 195)
 
         start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
         settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
@@ -244,6 +263,12 @@ def main_menu():
         draw_text_menu("Settings", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
         draw_text_menu("Exit", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 575)
 
+        if pygame.time.get_ticks() % 100 == 0:
+            spawn_money()
+
+        update_money()
+        for money in falling_money:
+            SCREEN.blit(money_image, (money["x"], money["y"]))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -256,21 +281,35 @@ def main_menu():
                     settings_menu()
                 if exit_button.collidepoint(event.pos):
                     pygame.quit()  
-                    sys.exit()
+                    sys.exit()  
 
         pygame.display.flip()
 
 # NASTAVENIA + START GAME
 def start_open():
     os.execlp("python", "python", "game.py")
+
+# RIP MACICKY V SETTINGS
+rip_image = pygame.image.load("player_rip.png")  
+rip_image = pygame.transform.scale(rip_image, (50, 50))  
+falling_rip = []
+
+def spawn_rip():
+    x_pos = random.randint(0, SCREEN_WIDTH - 50)
+    y_pos = -50
+    speed = random.uniform(0.5, 0.8)
+    falling_rip.append({"x": x_pos, "y": y_pos, "speed": speed})
+def update_rip():
+    for rip in falling_rip:
+        rip["y"] += rip["speed"]
+    falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
     
 def settings_menu():
-    global theme_index, current_theme, sound_on, volume_level
+    global theme_index, current_theme, sound_on, volume_level, SCREEN
     volume_slider_rect = pygame.Rect(SCREEN_WIDTH // 2 - 100, 440, 200, 20)
     volume_slider = pygame.Rect(SCREEN_WIDTH // 2 - 100 + (volume_level * 2), 440, 10, 20)
-
+    
     while True:
-        # FARBA POZADIA
         SCREEN.fill(current_theme["bg"])
 
         draw_text_menu("SETTINGS", font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 150)
@@ -287,11 +326,17 @@ def settings_menu():
         draw_text_menu("Back", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 525)
         draw_text_menu("Theme", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 275)
         draw_text_menu("Sound: ON" if sound_on else "Sound: OFF", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
-
+        draw_text_menu(f"Volume: {volume_level}%", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
 
         pygame.draw.rect(SCREEN, WHITE, volume_slider_rect)
         pygame.draw.rect(SCREEN, YELLOW, volume_slider)
-        draw_text_menu(f"Volume: {volume_level}%", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
+
+        if pygame.time.get_ticks() % 150 == 0:
+            spawn_rip()
+
+        update_rip()
+        for rip in falling_rip:
+            SCREEN.blit(rip_image, (rip["x"], rip["y"]))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -328,11 +373,9 @@ GAME FUNC
 def get_new_character():
     return Player(PLAYER_POSITION[0], PLAYER_POSITION[1])
 
-
 # GENERATE RANDOM COIN POSITION
 def random_coin_pos():
     return [random.randint(0, SCREEN_WIDTH - COIN_SIZE), random.randint(0, SCREEN_HEIGHT - COIN_SIZE)]
-
 
 # DRAW HUD
 def draw_hud():
@@ -395,6 +438,8 @@ def mouse_click(square_x, square_y):
                 text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
+                pygame.display.update()
+                pygame.time.delay(1000)
                 result = "Tie"
                 return result
             elif (pick == "Rock" and enemy_pick == "Paper") or (pick == "Paper" and enemy_pick == "Scissors") or (pick == "Scissors" and enemy_pick ==  "Rock"):
@@ -402,6 +447,8 @@ def mouse_click(square_x, square_y):
                 text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
+                pygame.display.update()
+                pygame.time.delay(1000)
                 result = True
                 return result
             elif (pick == "Rock" and enemy_pick == "Scissors") or (pick == "Paper" and enemy_pick == "Rock") or (pick == "Scissors" and enemy_pick ==  "Paper"):
@@ -409,12 +456,11 @@ def mouse_click(square_x, square_y):
                 text_obj = BASIC_FONT.render(message, True, TEXT_COLOR)
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
+                pygame.display.update()
+                pygame.time.delay(1000)
                 result = False
                 return result
-            pygame.display.update()
-            pygame.time.delay(1000)
     Last_click = pygame.mouse.get_pressed()[0]
-
 
 def check_boxes(mouse_x, mouse_y, square_x, square_y):
     global TILE_SIZE
