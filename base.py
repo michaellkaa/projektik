@@ -37,7 +37,7 @@ COIN_SIZE = 40
 CASH_COLOR = GREEN
 
 # CHARACTER
-CHARACTER_COLOR = BLACK
+CHARACTER_COLOR = CYAN
 CHARACTER_SIZE = 100
 PLAYER_SPEED = 11
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
@@ -63,12 +63,10 @@ button_font = pygame.font.Font(None, 40)
 pygame.mixer.music.load("Meow.mp3")
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.2)
-volume_level = 50  
+volume_level = 50 
 sound_on = True
 
-# CASH V MENU
-money_image = pygame.image.load("cash.png") 
-falling_money = [] 
+RESTRICTED_AREA = pygame.Rect(80, 5, 230, 120)
 
 # MINIGAME 1
 result = None
@@ -82,7 +80,7 @@ BASIC_FONT_SIZE = 20
 MESSAGE_COLOR = WHITE
 
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("MEOW")
+pygame.display.set_caption("! CAT Your Paycheck !")
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -204,7 +202,7 @@ def main():
     global FPS_CLOCK, SCREEN, BASIC_FONT, POINTS
     FPS_CLOCK = pygame.time.Clock()
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('CAT Your Paycheck!')
+    pygame.display.set_caption('! CAT Your Paycheck !')
 
     POINTS = 0
     while True:
@@ -226,10 +224,13 @@ def draw_text_menu(text, font, color, surface, x, y):
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
 
+# MACICKY A PENIAZE
+rip_image = pygame.image.load("player_rip.png")  
+rip_image = pygame.transform.scale(rip_image, (50, 50))  
+falling_rip = []
 
 money_image = pygame.image.load("cash.png")
 money_image = pygame.transform.scale(money_image, (50, 50))
-
 falling_money = []
 
 def spawn_money():
@@ -241,6 +242,16 @@ def update_money():
     for money in falling_money:
         money["y"] += money["speed"]
     falling_money[:] = [m for m in falling_money if m["y"] < SCREEN_HEIGHT]
+
+def spawn_rip():
+    x_pos = random.randint(0, SCREEN_WIDTH - 50)
+    y_pos = -50
+    speed = random.uniform(0.5, 0.8)
+    falling_rip.append({"x": x_pos, "y": y_pos, "speed": speed})
+def update_rip():
+    for rip in falling_rip:
+        rip["y"] += rip["speed"]
+    falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
 
 # HLAVNE MENU
 def main_menu():
@@ -289,20 +300,6 @@ def main_menu():
 def start_open():
     os.execlp("python", "python", "game.py")
 
-# RIP MACICKY V SETTINGS
-rip_image = pygame.image.load("player_rip.png")  
-rip_image = pygame.transform.scale(rip_image, (50, 50))  
-falling_rip = []
-
-def spawn_rip():
-    x_pos = random.randint(0, SCREEN_WIDTH - 50)
-    y_pos = -50
-    speed = random.uniform(0.5, 0.8)
-    falling_rip.append({"x": x_pos, "y": y_pos, "speed": speed})
-def update_rip():
-    for rip in falling_rip:
-        rip["y"] += rip["speed"]
-    falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
     
 def settings_menu():
     global theme_index, current_theme, sound_on, volume_level, SCREEN
@@ -375,7 +372,7 @@ def get_new_character():
 
 # GENERATE RANDOM COIN POSITION
 def random_coin_pos():
-    return [random.randint(0, SCREEN_WIDTH - COIN_SIZE), random.randint(0, SCREEN_HEIGHT - COIN_SIZE)]
+    return [random.randint(200, SCREEN_WIDTH - COIN_SIZE), random.randint(200, SCREEN_HEIGHT - COIN_SIZE)]
 
 # DRAW HUD
 def draw_hud():
@@ -544,8 +541,9 @@ def run_game():
                 POINTS += 1
             coin.rect.topleft = random_coin_pos()
             coin.toggle_special()
-        background = pygame.image.load("background.png")
+        background = pygame.image.load("backgroundnew.png")
         background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        SCREEN.fill(current_theme["bg"])
         SCREEN.blit(background, (0, 0))
         draw_hud()
         all_sprites.draw(SCREEN)
