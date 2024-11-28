@@ -36,7 +36,7 @@ font = pygame.font.Font(None, 60)
 button_font = pygame.font.Font(None, 40)
 
 # HUDBA V MENU 
-pygame.mixer.music.load("8-Bit Fantasy & Adventure Music.mp3")
+pygame.mixer.music.load("Meow.mp3")
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.5)
 
