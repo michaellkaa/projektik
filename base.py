@@ -41,7 +41,7 @@ CHARACTER_COLOR = CYAN
 CHARACTER_SIZE = 100
 PLAYER_SPEED = 11
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
-HP = 5
+HP = 1
 hp = pygame.image.load("hp.png")
 hp = pygame.transform.scale(hp, (32, 32))
 nohp = pygame.image.load("nohp.png")
@@ -226,8 +226,47 @@ def end_game():
     sys.exit()
 
 # GAME OVER SCREEN
+
 def game_over_screen():
-    pass
+    global POINTS, HP, nohp
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        back_button = pygame.Rect(SCREEN_WIDTH // 2 - 125, 250, 250, 50)
+        points = pygame.Rect(SCREEN_WIDTH // 2 - 125, 320, 250, 50)
+
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                end_game()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button.collidepoint(event.pos):
+                    HP = 5
+                    main_menu()
+        
+        background = pygame.image.load("backgroundnew.png")
+        background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        dead = pygame.image.load("player_rip.png")
+        dead = pygame.transform.scale(dead, (140, 140))
+        background_dim = pygame.image.load("gameoverbc.png")
+        background_dim = pygame.transform.scale(background_dim, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        SCREEN.fill(current_theme["bg"])
+        SCREEN.blit(background, (0, 0))
+        SCREEN.blit(background_dim, (0, 0))
+        draw_text_menu("GAME OVER", font, WHITE, SCREEN, SCREEN_WIDTH // 2, 150)
+        window = pygame.Rect(SCREEN_WIDTH // 2 - 250, 200, 500, 400)
+        pygame.draw.rect(SCREEN, current_theme["bg"], window)
+
+        SCREEN.blit(dead, (SCREEN_WIDTH // 2 - 70, 400))
+        pygame.draw.rect(SCREEN, current_theme["button"], points)
+        pygame.draw.rect(SCREEN, current_theme["button"], back_button)
+        draw_text_menu("Back to menu", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 270)
+        draw_text_menu(f"Score: {POINTS}$", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 340)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    end_game()
 
 # TEXT
 def draw_text_menu(text, font, color, surface, x, y):
@@ -298,7 +337,7 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if start_button.collidepoint(event.pos):
-                    return True
+                    main()
                 if settings_button.collidepoint(event.pos):
                     settings_menu()
                 if exit_button.collidepoint(event.pos):
@@ -311,7 +350,6 @@ def main_menu():
 def start_open():
     os.execlp("python", "python", "game.py")
 
-    
 def settings_menu():
     global theme_index, current_theme, sound_on, volume_level, SCREEN
     volume_slider_rect = pygame.Rect(SCREEN_WIDTH // 2 - 100, 440, 200, 20)
@@ -390,7 +428,6 @@ def random_coin_pos():
         if not (coin_rect.colliderect(RESTRICTED_AREA) or coin_rect.colliderect(RESTRICTED_AREA_2) or coin_rect.colliderect(RESTRICTED_AREA_3) or coin_rect.colliderect(RESTRICTED_AREA_4) or coin_rect.colliderect(RESTRICTED_AREA_5)):
             return [x, y]
 
-
 # DRAW HUD
 def draw_hud():
     hp_x = 600
@@ -430,7 +467,7 @@ def paper_tile(square_x, square_y):
 
 def game(square_x, square_y):
     message = "> ONE OF THEM IS FAKE <"
-    text_obj = FONT.render(message, True, WHITE)
+    text_obj = FONT.render(message, True, current_theme["text"])
     text_rect = text_obj.get_rect(center=(SCREEN_HEIGHT//2, SCREEN_HEIGHT/2-(SCREEN_HEIGHT//3)))
     SCREEN.blit(text_obj, text_rect)
     scissors_tile(square_x, square_y)
@@ -453,7 +490,7 @@ def mouse_click(square_x, square_y):
             SCREEN.fill(current_theme["bg"])
             if pick == enemy_pick:
                 message = "YOU FOUND THE REAL CASH."
-                text_obj = FONT.render(message, True, TEXT_COLOR)
+                text_obj = FONT.render(message, True, current_theme["text"])
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
@@ -462,7 +499,7 @@ def mouse_click(square_x, square_y):
                 return result
             elif (pick == "Rock" and enemy_pick == "Paper") or (pick == "Paper" and enemy_pick == "Scissors") or (pick == "Scissors" and enemy_pick ==  "Rock"):
                 message = "YOU FOUND THE REAL CASH."
-                text_obj = FONT.render(message, True, TEXT_COLOR)
+                text_obj = FONT.render(message, True, current_theme["text"])
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
@@ -471,7 +508,7 @@ def mouse_click(square_x, square_y):
                 return result
             elif (pick == "Rock" and enemy_pick == "Scissors") or (pick == "Paper" and enemy_pick == "Rock") or (pick == "Scissors" and enemy_pick ==  "Paper"):
                 message = "OH NO. YOU FOUND FAKE MONEY!"
-                text_obj = FONT.render(message, True, TEXT_COLOR)
+                text_obj = FONT.render(message, True, current_theme["text"])
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
@@ -482,12 +519,12 @@ def mouse_click(square_x, square_y):
 
 def check_boxes(mouse_x, mouse_y, square_x, square_y):
     global TILE_SIZE
-    rock_left = (SCREEN_WIDTH - TILE_SIZE) / 2 - TILE_SIZE - 10
-    rock_right = (SCREEN_WIDTH - TILE_SIZE) / 2 - 10
+    rock_left = (SCREEN_WIDTH - TILE_SIZE) / 2 - TILE_SIZE - 150
+    rock_right = (SCREEN_WIDTH - TILE_SIZE) / 2 - 150
     scissors_left = (SCREEN_WIDTH - TILE_SIZE) / 2
     scissors_right = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE
-    paper_left = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE + 10
-    paper_right = (SCREEN_WIDTH - TILE_SIZE) / 2 + 2 * TILE_SIZE + 10
+    paper_left = (SCREEN_WIDTH - TILE_SIZE) / 2 + TILE_SIZE + 150
+    paper_right = (SCREEN_WIDTH - TILE_SIZE) / 2 + 2*TILE_SIZE + 150
     tile_top = (SCREEN_HEIGHT - TILE_SIZE) / 2
     tile_bottom = (SCREEN_HEIGHT - TILE_SIZE) / 2 + TILE_SIZE
 
@@ -525,6 +562,7 @@ def mini_game_1():
 '''
 GAME LOOP
 '''
+
 
 def run_game():
     global POINTS, HP, result, hp, nohp
@@ -575,5 +613,4 @@ def run_game():
 
 
 if __name__ == "__main__":
-    if main_menu():
-        main()
+    main_menu()
