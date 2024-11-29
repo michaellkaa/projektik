@@ -1,4 +1,4 @@
-import pygame, sys, os
+import pygame, sys, os, random
 pygame.init()
 pygame.mixer.init()
 
@@ -6,7 +6,14 @@ pygame.mixer.init()
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 720
 
-# FARBICKY
+# ICONA MACICKY + SCREEN
+icon = pygame.image.load("icon1.png")
+pygame.display.set_icon(icon)
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("MEOW")
+
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
@@ -27,41 +34,39 @@ theme_index = 0
 current_theme = THEMES[theme_index]
 
 
-# OBRAZOVKA
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("MEOW")
-
-# FONT + NOVY FONT
-font = pygame.font.Font(None, 60)
-button_font = pygame.font.Font(None, 40)
-
 # HUDBA V MENU 
 pygame.mixer.music.load("Meow.mp3")
 pygame.mixer.music.play(-1)
-pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.set_volume(0.3)
 
 volume_level = 50  
 sound_on = True
 
-# TEXT
+# TEXT A FONT
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
 
+font = pygame.font.Font(None, 60)
+button_font = pygame.font.Font(None, 40)
+
+
 # CASH V MENU
-money_image = pygame.image.load("cash.png") 
-falling_money = [] 
+money_image = pygame.image.load("cash.png")
+money_image = pygame.transform.scale(money_image, (50, 50))
 
-def update_and_draw_money():
-    if pygame.time.get_ticks() % 30 == 0:  
-        falling_money.append([pygame.random.randint(0, SCREEN_WIDTH - 50), -50]) 
+falling_money = []
+
+def spawn_money():
+    x_pos = random.randint(0, SCREEN_WIDTH - 50)
+    y_pos = -50
+    speed = random.randint(1, 2) 
+    falling_money.append({"x": x_pos, "y": y_pos, "speed": speed})
+def update_money():
     for money in falling_money:
-        money[1] += 3 
-        screen.blit(money_image, money)
-    falling_money[:] = [m for m in falling_money if m[1] < SCREEN_HEIGHT]
-
-
+        money["y"] += money["speed"]
+    falling_money[:] = [m for m in falling_money if m["y"] < SCREEN_HEIGHT]
 
 # HLAVNE MENU
 def main_menu():
@@ -83,7 +88,12 @@ def main_menu():
         draw_text("Settings", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
         draw_text("Exit", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 575)
 
-        update_and_draw_money()
+        if pygame.time.get_ticks() % 60 == 0:
+            spawn_money()
+
+        update_money()
+        for money in falling_money:
+            screen.blit(money_image, (money["x"], money["y"]))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -99,21 +109,33 @@ def main_menu():
                     pygame.quit()  
                     sys.exit()  
 
-
         pygame.display.flip()
 
-# NASTAVENIA + START GAME
+# NASTAVENIA + START GAME + RIP CAT 
 def start_open():
     os.execlp("python", "python", "game.py")
+
+# RIP MACICKY V SETTINGS
+rip_image = pygame.image.load("player_rip.png")  
+rip_image = pygame.transform.scale(rip_image, (50, 50))  
+falling_rip = []
+
+def spawn_rip():
+    x_pos = random.randint(0, SCREEN_WIDTH - 50)
+    y_pos = -50
+    speed = random.randint(1, 2)
+    falling_rip.append({"x": x_pos, "y": y_pos, "speed": speed})
+def update_rip():
+    for rip in falling_rip:
+        rip["y"] += rip["speed"]
+    falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
     
 def settings_menu():
     global theme_index, current_theme, sound_on, volume_level
     volume_slider_rect = pygame.Rect(SCREEN_WIDTH // 2 - 100, 440, 200, 20)
     volume_slider = pygame.Rect(SCREEN_WIDTH // 2 - 100 + (volume_level * 2), 440, 10, 20)
-
-
+    
     while True:
-        # FARBA POZADIA
         screen.fill(current_theme["bg"])
 
         draw_text("SETTINGS", font, current_theme["text"], screen, SCREEN_WIDTH // 2, 150)
@@ -130,11 +152,17 @@ def settings_menu():
         draw_text("Back", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 525)
         draw_text("Theme", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 275)
         draw_text("Sound: ON" if sound_on else "Sound: OFF", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
-
+        draw_text(f"Volume: {volume_level}%", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
 
         pygame.draw.rect(screen, WHITE, volume_slider_rect)
         pygame.draw.rect(screen, YELLOW, volume_slider)
-        draw_text(f"Volume: {volume_level}%", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
+
+        if pygame.time.get_ticks() % 60 == 0:
+            spawn_rip()
+
+        update_rip()
+        for rip in falling_rip:
+            screen.blit(rip_image, (rip["x"], rip["y"]))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
