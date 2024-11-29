@@ -108,7 +108,7 @@ def main_menu():
                 if exit_button.collidepoint(event.pos):
                     pygame.quit()  
                     sys.exit()  
-
+ 
         pygame.display.flip()
 
 # NASTAVENIA + START GAME + RIP CAT 
