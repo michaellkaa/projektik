@@ -88,7 +88,7 @@ BASIC_FONT_SIZE = 20
 MESSAGE_COLOR = WHITE
 
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("! CAT Your Paycheck !")
+pygame.display.set_caption(">> CAT YOUR PAYCHECK <<")
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -214,7 +214,7 @@ def main():
     global FPS_CLOCK, SCREEN, BASIC_FONT, POINTS
     FPS_CLOCK = pygame.time.Clock()
     BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('! CAT Your Paycheck !')
+    pygame.display.set_caption('>> CAT YOUR PAYCHECK <<')
 
     POINTS = 0
     while True:
@@ -503,7 +503,7 @@ def mini_game_1():
     global SCREEN, BASIC_FONT, result, clock
     clock = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption('CAT Your Paycheck!')
+    pygame.display.set_caption('>> CAT YOUR PAYCHECK <<')
 
     square_x = (SCREEN_WIDTH - TILE_SIZE) / 2
     square_y = (SCREEN_HEIGHT - TILE_SIZE) / 2
