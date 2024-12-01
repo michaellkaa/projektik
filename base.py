@@ -41,7 +41,7 @@ CHARACTER_COLOR = CYAN
 CHARACTER_SIZE = 100
 PLAYER_SPEED = 11
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
-HP = 1
+HP = 5
 hp = pygame.image.load("hp.png")
 hp = pygame.transform.scale(hp, (32, 32))
 nohp = pygame.image.load("nohp.png")
@@ -411,6 +411,7 @@ def settings_menu():
         pygame.display.flip()
 
 
+
 '''
 GAME FUNC
 '''
@@ -444,7 +445,12 @@ def draw_hud():
     pygame.draw.rect(SCREEN, WHITE, (925, 15, 40, 40))
     SCREEN.blit(points_text, (927, 25))
 
-# MINIHRA 1
+
+
+'''
+MINIGAME 1
+'''
+
 cash_img = pygame.image.load("cash.png")
 FONT = pygame.font.Font(None, 55)
 
@@ -559,10 +565,136 @@ def mini_game_1():
     return result
 
 
+
+'''
+MINIGAME 2
+'''
+
+LINE_WIDTH = 10
+CIRCLE_RADIUS = 60
+CROSS_WIDTH = 15
+
+font2 = pygame.font.Font(None, 74)
+message_font2 = pygame.font.Font(None, 54)
+board = [[None] * 3 for _ in range(3)]
+current_player = "player"
+
+def draw_grid():
+    for i in range(1, 3):
+        pygame.draw.line(SCREEN, current_theme["button"], (0, SCREEN_HEIGHT // 3 * i), (SCREEN_WIDTH, SCREEN_HEIGHT // 3 * i), LINE_WIDTH)
+        pygame.draw.line(SCREEN, current_theme["button"], (SCREEN_WIDTH // 3 * i, 0), (SCREEN_WIDTH // 3 * i, SCREEN_HEIGHT), LINE_WIDTH)
+
+def draw_mark(row, col, player):
+    x = col * (SCREEN_WIDTH // 3) + (SCREEN_WIDTH // 6)
+    y = row * (SCREEN_HEIGHT // 3) + (SCREEN_HEIGHT // 6)
+    if player == "player":  # X
+        pygame.draw.line(SCREEN, current_theme["text"], (x - 40, y - 40), (x + 40, y + 40), CROSS_WIDTH)
+        pygame.draw.line(SCREEN, current_theme["text"], (x - 40, y + 40), (x + 40, y - 40), CROSS_WIDTH)
+    else:  # O
+        pygame.draw.circle(SCREEN, current_theme["text"], (x, y), CIRCLE_RADIUS, LINE_WIDTH)
+
+def check_winner():
+    for i in range(3):
+        if board[i][0] == board[i][1] == board[i][2] and board[i][0] is not None:
+            return board[i][0]
+        if board[0][i] == board[1][i] == board[2][i] and board[0][i] is not None:
+            return board[0][i]
+    if board[0][0] == board[1][1] == board[2][2] and board[0][0] is not None:
+        return board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] and board[0][2] is not None:
+        return board[0][2]
+    if all(cell is not None for row in board for cell in row):  
+        return "draw"
+    return None
+
+def pc_move():
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] is None:
+                board[row][col] = "pc"
+                if check_winner() == "pc":
+                    return row, col
+                board[row][col] = "player"
+                if check_winner() == "player":
+                    board[row][col] = "pc"
+                    return row, col
+                board[row][col] = None
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] is None:
+                board[row][col] = "pc"
+                return row, col
+
+def display_message(text):
+    message = message_font2.render(text, True, current_theme["text"])
+    SCREEN.fill(current_theme["bg"])
+    SCREEN.blit(message, (SCREEN_WIDTH // 2 - message.get_width() // 2, SCREEN_HEIGHT // 2 - message.get_height() // 2))
+    pygame.display.flip()
+    pygame.time.wait(1000)
+
+def mini_game_2():
+    global current_player, THEMES, board
+    running = True
+    SCREEN.fill(current_theme["bg"])
+    draw_grid()
+    current_player = "player"
+    board = [[None] * 3 for _ in range(3)]
+    pygame.display.set_caption('>> CAT YOUR PAYCHECK <<')
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                end_game()
+            if event.type == pygame.MOUSEBUTTONDOWN and current_player == "player":
+                x, y = event.pos
+                row, col = y // (SCREEN_HEIGHT // 3), x // (SCREEN_WIDTH // 3)
+                if board[row][col] is None:
+                    board[row][col] = "player"
+                    draw_mark(row, col, "player")
+                    winner = check_winner()
+                    if winner:
+                        if winner == "draw":
+                            display_message("IT'S A TIE.")
+                            result = "Tie"
+                            return result 
+                        elif winner == "player":
+                            display_message("YOU WON!")
+                            result = True
+                            return result
+                        elif winner == "pc":
+                            display_message("YOU LOST!")
+                            result = False
+                            return result
+                    else:
+                        current_player = "pc"
+
+            if current_player == "pc" and running:
+                row, col = pc_move()
+                draw_mark(row, col, "pc")
+                winner = check_winner()
+                if winner:
+                    if winner == "draw":
+                        display_message("IT'S A TIE.")
+                        result = "Tie"
+                        return result
+                    elif winner == "player":
+                        display_message("YOU WON!")
+                        result = True
+                        return result
+                    elif winner == "pc":
+                        display_message("YOU LOST!")
+                        result = False
+                        return result
+                else:
+                    current_player = "player"
+
+        pygame.display.update()
+        pygame.display.flip()
+
+
+
 '''
 GAME LOOP
 '''
-
 
 def run_game():
     global POINTS, HP, result, hp, nohp
@@ -586,7 +718,11 @@ def run_game():
             pygame.mixer.music.set_volume(0.5)
 
             if coin.special:
-                mini_game_1()
+                minigame = random.randint(1, 2)
+                if minigame == 1:
+                    mini_game_1()
+                elif minigame == 2:
+                    mini_game_2()
                 if result == True:
                     POINTS += 5
                 elif result == False:
