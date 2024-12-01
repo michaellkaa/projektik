@@ -2,8 +2,9 @@ import pygame, sys, os, random
 pygame.init()
 pygame.mixer.init()
 
-# SCREEN
-SCREEN_WIDTH = 1080
+# SYSTEM
+FPS = 60
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # ICONA MACICKY + SCREEN
@@ -82,7 +83,7 @@ def main_menu():
         # FARBA POZADIA
         screen.fill(current_theme["bg"])
 
-        draw_text("!CAT YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
+        draw_text(">>CAT YOUR PAYCHECK<<", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
 
         start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
         settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
