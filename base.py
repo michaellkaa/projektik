@@ -88,7 +88,7 @@ BASIC_FONT_SIZE = 20
 MESSAGE_COLOR = WHITE
 
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption(">> CAT YOUR PAYCHECK <<")
+pygame.display.set_caption("MEOWGAME")
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
