@@ -2,8 +2,9 @@ import pygame, sys, os, random
 pygame.init()
 pygame.mixer.init()
 
-# SCREEN
-SCREEN_WIDTH = 1080
+# SYSTEM
+FPS = 60
+SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # ICONA MACICKY + SCREEN
@@ -68,13 +69,21 @@ def update_money():
         money["y"] += money["speed"]
     falling_money[:] = [m for m in falling_money if m["y"] < SCREEN_HEIGHT]
 
+# MACKA V MENU
+cat_image = pygame.image.load("player_d1.png") 
+cat_image = pygame.transform.scale(cat_image, (125, 145))
+
+corner_x = SCREEN_WIDTH - cat_image.get_width() - 30
+corner_y = SCREEN_HEIGHT - cat_image.get_height() - 30
+
+
 # HLAVNE MENU
 def main_menu():
     while True:
         # FARBA POZADIA
         screen.fill(current_theme["bg"])
 
-        draw_text("!CAT YOUR PAYCHECK!", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
+        draw_text(">>CAT YOUR PAYCHECK<<", font, YELLOW, screen, SCREEN_WIDTH // 2, 195)
 
         start_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 350, 200, 50)
         settings_button = pygame.Rect(SCREEN_WIDTH // 2 - 100, 450, 200, 50)
@@ -87,6 +96,8 @@ def main_menu():
         draw_text("Start", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 375)
         draw_text("Settings", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 475)
         draw_text("Exit", button_font, current_theme["text"], screen, SCREEN_WIDTH // 2, 575)
+
+        screen.blit(cat_image, (corner_x, corner_y))
 
         if pygame.time.get_ticks() % 60 == 0:
             spawn_money()
@@ -110,6 +121,13 @@ def main_menu():
                     sys.exit()  
 
         pygame.display.flip()
+
+# MACKA V NASTAVENIACH
+cat_image = pygame.image.load("player_d1.png") 
+cat_image = pygame.transform.scale(cat_image, (125, 145))
+
+corner_x = SCREEN_WIDTH - cat_image.get_width() - 30
+corner_y = SCREEN_HEIGHT - cat_image.get_height() - 30
 
 # NASTAVENIA + START GAME + RIP CAT 
 def start_open():
@@ -156,6 +174,8 @@ def settings_menu():
 
         pygame.draw.rect(screen, WHITE, volume_slider_rect)
         pygame.draw.rect(screen, YELLOW, volume_slider)
+
+        screen.blit(cat_image, (corner_x, corner_y))
 
         if pygame.time.get_ticks() % 60 == 0:
             spawn_rip()
