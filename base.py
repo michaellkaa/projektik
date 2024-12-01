@@ -7,46 +7,50 @@ from pygame.locals import *
 pygame.init()
 pygame.font.init()
 
-# ICONA MACICKY + SCREEN
-icon = pygame.image.load("icon1.png")
-pygame.display.set_icon(icon)
 
-# SYSTEM
+
+'''
+VARIABLES
+'''
+
+# DISPLAY
 FPS = 60
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption(">> CAT YOUR PAYCHECK <<")
 
 # COLORS
-RED = (255, 0, 0)
-GREEN = (0, 153, 0)
 YELLOW = (254, 236, 55)
-ORANGE = (255, 128, 0)
 PURPLE = (183,104,162)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 PINK = (255, 51, 153)
 GRAY = (100, 100, 100)
-DARK_MODE_BG = (30, 30, 30)
-LIGHT_MODE_BG = (255, 255, 255)
 DARK_GREEN = (26, 26, 25)
-
-BG_COLOR = PURPLE
-COIN_COLOR = YELLOW
-COIN_SIZE = 40
-CASH_COLOR = GREEN
 
 # CHARACTER
 CHARACTER_COLOR = CYAN
 CHARACTER_SIZE = 100
-PLAYER_SPEED = 11
+PLAYER_SPEED = 12
 PLAYER_POSITION = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2]
 HP = 5
+POINTS = 0
 hp = pygame.image.load("hp.png")
 hp = pygame.transform.scale(hp, (32, 32))
 nohp = pygame.image.load("nohp.png")
 nohp = pygame.transform.scale(nohp, (32, 32))
-POINTS = 0
+RESTRICTED_AREA = pygame.Rect(105, 0, 420, 70)
+RESTRICTED_AREA_2 = pygame.Rect(322, 547, 5, 5)
+RESTRICTED_AREA_3 = pygame.Rect(762, 0, 120, 80)
+RESTRICTED_AREA_4 = pygame.Rect(510, 559, 420, 200)
+RESTRICTED_AREA_5 = pygame.Rect(1052, 0, 250, 170)
+
+# COLLECTIBLES
+COIN_COLOR = YELLOW
+COIN_SIZE = 40
+CASH_COLOR = DARK_GREEN
 
 # MENU
 THEMES = [
@@ -58,10 +62,22 @@ THEMES = [
     ]
 theme_index = 0
 current_theme = THEMES[theme_index]
+icon = pygame.image.load("icon1.png")
+pygame.display.set_icon(icon)
+rip_image = pygame.image.load("player_rip.png")  
+rip_image = pygame.transform.scale(rip_image, (50, 50))  
+falling_rip = []
+money_image = pygame.image.load("cash.png")
+money_image = pygame.transform.scale(money_image, (50, 50))
+falling_money = []
 
-# FONT + NOVY FONT
 font = pygame.font.Font(None, 60)
 button_font = pygame.font.Font(None, 40)
+
+cat_image = pygame.image.load("player_d1.png") 
+cat_image = pygame.transform.scale(cat_image, (125, 145))
+corner_x = SCREEN_WIDTH - cat_image.get_width() - 30
+corner_y = SCREEN_HEIGHT - cat_image.get_height() - 10
 
 # HUDBA V MENU 
 pygame.mixer.music.load("Meow.mp3")
@@ -69,12 +85,6 @@ pygame.mixer.music.play(-1)
 pygame.mixer.music.set_volume(0.2)
 volume_level = 50 
 sound_on = True
-
-RESTRICTED_AREA = pygame.Rect(105, 0, 420, 70)
-RESTRICTED_AREA_2 = pygame.Rect(322, 547, 5, 5)
-RESTRICTED_AREA_3 = pygame.Rect(762, 0, 120, 80)
-RESTRICTED_AREA_4 = pygame.Rect(510, 559, 420, 200)
-RESTRICTED_AREA_5 = pygame.Rect(1052, 0, 250, 170)
 
 # MINIGAME 1
 result = None
@@ -86,9 +96,23 @@ TILE_COLOR = PRINCESS_PINK
 TEXT_COLOR = WHITE
 BASIC_FONT_SIZE = 20
 MESSAGE_COLOR = WHITE
+cash_img = pygame.image.load("cash.png")
+FONT = pygame.font.Font(None, 55)
 
-SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("MEOWGAME")
+# MINIGAME 2
+LINE_WIDTH = 10
+CIRCLE_RADIUS = 60
+CROSS_WIDTH = 15
+font2 = pygame.font.Font(None, 74)
+message_font2 = pygame.font.Font(None, 54)
+board = [[None] * 3 for _ in range(3)]
+current_player = "player"
+
+
+
+'''
+CLASSES
+'''
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -167,7 +191,6 @@ class Player(pygame.sprite.Sprite):
             elif self.direction == "down":
                 self.image = self.down_sprites[self.frame_index]
 
-
 class Coin(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -181,7 +204,7 @@ class Coin(pygame.sprite.Sprite):
         self.special = False
 
     def toggle_special(self):
-        self.special = random.choice([True, False, False])  # Randomly determine if the coin is special
+        self.special = random.choice([True, False, False])
         if self.special == True:
             try:
                 self.image = pygame.image.load("cash.png").convert_alpha()
@@ -205,83 +228,15 @@ class Coin(pygame.sprite.Sprite):
             self.image.fill(COIN_COLOR)
 
 
+
 '''
-SYSTEM FUNC
+MENU & SETTINGS
 '''
 
-# MAIN
-def main():
-    global FPS_CLOCK, SCREEN, BASIC_FONT, POINTS
-    FPS_CLOCK = pygame.time.Clock()
-    BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
-    pygame.display.set_caption('>> CAT YOUR PAYCHECK <<')
-
-    POINTS = 0
-    while True:
-        run_game()
-
-# END GAME
-def end_game():
-    pygame.quit()
-    sys.exit()
-
-# GAME OVER SCREEN
-
-def game_over_screen():
-    global POINTS, HP, nohp
-    clock = pygame.time.Clock()
-
-    running = True
-    while running:
-        back_button = pygame.Rect(SCREEN_WIDTH // 2 - 125, 250, 250, 50)
-        points = pygame.Rect(SCREEN_WIDTH // 2 - 125, 320, 250, 50)
-
-        for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                end_game()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if back_button.collidepoint(event.pos):
-                    HP = 5
-                    main_menu()
-        
-        background = pygame.image.load("backgroundnew.png")
-        background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        dead = pygame.image.load("player_rip.png")
-        dead = pygame.transform.scale(dead, (140, 140))
-        background_dim = pygame.image.load("gameoverbc.png")
-        background_dim = pygame.transform.scale(background_dim, (SCREEN_WIDTH, SCREEN_HEIGHT))
-        SCREEN.fill(current_theme["bg"])
-        SCREEN.blit(background, (0, 0))
-        SCREEN.blit(background_dim, (0, 0))
-        draw_text_menu("GAME OVER", font, WHITE, SCREEN, SCREEN_WIDTH // 2, 150)
-        window = pygame.Rect(SCREEN_WIDTH // 2 - 250, 200, 500, 400)
-        pygame.draw.rect(SCREEN, current_theme["bg"], window)
-
-        SCREEN.blit(dead, (SCREEN_WIDTH // 2 - 70, 400))
-        pygame.draw.rect(SCREEN, current_theme["button"], points)
-        pygame.draw.rect(SCREEN, current_theme["button"], back_button)
-        draw_text_menu("Back to menu", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 270)
-        draw_text_menu(f"Score: {POINTS}$", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 340)
-
-        pygame.display.flip()
-        clock.tick(FPS)
-
-    end_game()
-
-# TEXT
 def draw_text_menu(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
-
-# MACICKY A PENIAZE
-rip_image = pygame.image.load("player_rip.png")  
-rip_image = pygame.transform.scale(rip_image, (50, 50))  
-falling_rip = []
-
-money_image = pygame.image.load("cash.png")
-money_image = pygame.transform.scale(money_image, (50, 50))
-falling_money = []
 
 def spawn_money():
     x_pos = random.randint(0, SCREEN_WIDTH - 50)
@@ -303,15 +258,6 @@ def update_rip():
         rip["y"] += rip["speed"]
     falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
 
-# MACKA V MENU
-cat_image = pygame.image.load("player_d1.png") 
-cat_image = pygame.transform.scale(cat_image, (125, 145))
-
-corner_x = SCREEN_WIDTH - cat_image.get_width() - 30
-corner_y = SCREEN_HEIGHT - cat_image.get_height() - 10
-
-
-# HLAVNE MENU
 def main_menu():
     while True:
         global SCREEN
@@ -356,11 +302,6 @@ def main_menu():
 
         pygame.display.flip()
 
-# MACKA V NASTAVENIACH
-cat_image = pygame.image.load("player_d1.png") 
-cat_image = pygame.transform.scale(cat_image, (125, 145))
-
-# NASTAVENIA + START GAME
 def start_open():
     os.execlp("python", "python", "game.py")
 
@@ -429,14 +370,12 @@ def settings_menu():
 
 
 '''
-GAME FUNC
+MAIN GAME
 '''
 
-# GENERATE NEW CHARACTER
 def get_new_character():
     return Player(PLAYER_POSITION[0], PLAYER_POSITION[1])
 
-# GENERATE RANDOM COIN POSITION
 def random_coin_pos():
     while True:
         x = random.randint(10, SCREEN_WIDTH - COIN_SIZE)
@@ -445,7 +384,6 @@ def random_coin_pos():
         if not (coin_rect.colliderect(RESTRICTED_AREA) or coin_rect.colliderect(RESTRICTED_AREA_2) or coin_rect.colliderect(RESTRICTED_AREA_3) or coin_rect.colliderect(RESTRICTED_AREA_4) or coin_rect.colliderect(RESTRICTED_AREA_5)):
             return [x, y]
 
-# DRAW HUD
 def draw_hud():
     hp_x = 600
     hp_y = 20
@@ -466,9 +404,6 @@ def draw_hud():
 '''
 MINIGAME 1
 '''
-
-cash_img = pygame.image.load("cash.png")
-FONT = pygame.font.Font(None, 55)
 
 def scissors_tile(square_x, square_y):
     pygame.draw.rect(SCREEN, current_theme["button"], (square_x, square_y, 1.5*TILE_SIZE, TILE_SIZE))
@@ -586,15 +521,6 @@ def mini_game_1():
 MINIGAME 2
 '''
 
-LINE_WIDTH = 10
-CIRCLE_RADIUS = 60
-CROSS_WIDTH = 15
-
-font2 = pygame.font.Font(None, 74)
-message_font2 = pygame.font.Font(None, 54)
-board = [[None] * 3 for _ in range(3)]
-current_player = "player"
-
 def draw_grid():
     for i in range(1, 3):
         pygame.draw.line(SCREEN, current_theme["button"], (0, SCREEN_HEIGHT // 3 * i), (SCREEN_WIDTH, SCREEN_HEIGHT // 3 * i), LINE_WIDTH)
@@ -649,7 +575,7 @@ def display_message(text):
     pygame.time.wait(1000)
 
 def mini_game_2():
-    global current_player, THEMES, board
+    global current_player, THEMES, board, result
     running = True
     SCREEN.fill(current_theme["bg"])
     draw_grid()
@@ -712,6 +638,61 @@ def mini_game_2():
 GAME LOOP
 '''
 
+def main():
+    global FPS_CLOCK, SCREEN, BASIC_FONT, POINTS
+    FPS_CLOCK = pygame.time.Clock()
+    BASIC_FONT = pygame.font.Font('freesansbold.ttf', 18)
+    pygame.display.set_caption('>> CAT YOUR PAYCHECK <<')
+
+    POINTS = 0
+    while True:
+        run_game()
+
+def end_game():
+    pygame.quit()
+    sys.exit()
+
+def game_over_screen():
+    global POINTS, HP, nohp
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        back_button = pygame.Rect(SCREEN_WIDTH // 2 - 125, 250, 250, 50)
+        points = pygame.Rect(SCREEN_WIDTH // 2 - 125, 320, 250, 50)
+
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                end_game()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if back_button.collidepoint(event.pos):
+                    HP = 5
+                    main_menu()
+        
+        background = pygame.image.load("backgroundnew.png")
+        background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        dead = pygame.image.load("player_rip.png")
+        dead = pygame.transform.scale(dead, (140, 140))
+        background_dim = pygame.image.load("gameoverbc.png")
+        background_dim = pygame.transform.scale(background_dim, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        SCREEN.fill(current_theme["bg"])
+        SCREEN.blit(background, (0, 0))
+        SCREEN.blit(background_dim, (0, 0))
+        draw_text_menu("GAME OVER", font, WHITE, SCREEN, SCREEN_WIDTH // 2, 150)
+        window = pygame.Rect(SCREEN_WIDTH // 2 - 250, 200, 500, 400)
+        pygame.draw.rect(SCREEN, current_theme["bg"], window)
+
+        SCREEN.blit(dead, (SCREEN_WIDTH // 2 - 70, 400))
+        pygame.draw.rect(SCREEN, current_theme["button"], points)
+        pygame.draw.rect(SCREEN, current_theme["button"], back_button)
+        draw_text_menu("Back to menu", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 270)
+        draw_text_menu(f"Score: {POINTS}$", button_font, WHITE, SCREEN, SCREEN_WIDTH // 2, 340)
+
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    end_game()
+
 def run_game():
     global POINTS, HP, result, hp, nohp
     clock = pygame.time.Clock()
@@ -762,6 +743,7 @@ def run_game():
         clock.tick(FPS)
 
     end_game()
+
 
 
 if __name__ == "__main__":
