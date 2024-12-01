@@ -303,6 +303,14 @@ def update_rip():
         rip["y"] += rip["speed"]
     falling_rip[:] = [m for m in falling_rip if m["y"] < SCREEN_HEIGHT]
 
+# MACKA V MENU
+cat_image = pygame.image.load("player_d1.png") 
+cat_image = pygame.transform.scale(cat_image, (125, 145))
+
+corner_x = SCREEN_WIDTH - cat_image.get_width() - 30
+corner_y = SCREEN_HEIGHT - cat_image.get_height() - 10
+
+
 # HLAVNE MENU
 def main_menu():
     while True:
@@ -323,6 +331,8 @@ def main_menu():
         draw_text_menu("Start", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 375)
         draw_text_menu("Settings", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 475)
         draw_text_menu("Exit", button_font, current_theme["text"], SCREEN, SCREEN_WIDTH // 2, 575)
+
+        SCREEN.blit(cat_image, (corner_x, corner_y))
 
         if pygame.time.get_ticks() % 100 == 0:
             spawn_money()
@@ -345,6 +355,10 @@ def main_menu():
                     sys.exit()  
 
         pygame.display.flip()
+
+# MACKA V NASTAVENIACH
+cat_image = pygame.image.load("player_d1.png") 
+cat_image = pygame.transform.scale(cat_image, (125, 145))
 
 # NASTAVENIA + START GAME
 def start_open():
@@ -377,13 +391,15 @@ def settings_menu():
         pygame.draw.rect(SCREEN, WHITE, volume_slider_rect)
         pygame.draw.rect(SCREEN, YELLOW, volume_slider)
 
+        SCREEN.blit(cat_image, (corner_x, corner_y))
+
         if pygame.time.get_ticks() % 150 == 0:
             spawn_rip()
 
         update_rip()
         for rip in falling_rip:
             SCREEN.blit(rip_image, (rip["x"], rip["y"]))
-
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
