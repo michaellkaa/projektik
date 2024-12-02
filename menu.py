@@ -6,13 +6,12 @@ pygame.mixer.init()
 FPS = 60
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-
-# ICONA MACICKY + SCREEN
-icon = pygame.image.load("icon1.png")
-pygame.display.set_icon(icon)
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("MEOW")
+
+# ICONA + SCREEN
+icon = pygame.image.load("icon1.png")
+pygame.display.set_icon(icon)
 
 
 WHITE = (255, 255, 255)
@@ -68,6 +67,7 @@ def update_money():
     for money in falling_money:
         money["y"] += money["speed"]
     falling_money[:] = [m for m in falling_money if m["y"] < SCREEN_HEIGHT]
+
 
 # MACKA V MENU
 cat_image = pygame.image.load("player_d1.png") 
