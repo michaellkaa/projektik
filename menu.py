@@ -6,7 +6,7 @@ pygame.mixer.init()
 SCREEN_WIDTH = 1080
 SCREEN_HEIGHT = 720
 
-# ICONA MACICKY + SCREEN
+# ICONA + SCREEN
 icon = pygame.image.load("icon1.png")
 pygame.display.set_icon(icon)
 
