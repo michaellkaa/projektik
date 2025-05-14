@@ -454,12 +454,14 @@ def mouse_click(square_x, square_y):
                 pygame.time.delay(1000)
                 result = True
                 return result
+
             elif (pick == "Rock" and enemy_pick == "Paper") or (pick == "Paper" and enemy_pick == "Scissors") or (pick == "Scissors" and enemy_pick ==  "Rock"):
                 message = "YOU FOUND THE REAL CASH."
                 text_obj = FONT.render(message, True, current_theme["text"])
                 text_rect = text_obj.get_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2))
                 SCREEN.blit(text_obj, text_rect)
                 pygame.display.update()
+                SCREEN.blit(text_obj, text_rect(center=(square_x + TILE_SIZE / 2, square_y + TILE_SIZE / 2)))
                 pygame.time.delay(1000)
                 result = True
                 return result
